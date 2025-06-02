@@ -389,134 +389,132 @@ export async function handler(chatUpdate) {
           plugin.credit &&
           global.db.data.users[m.sender].credit < plugin.credit * 1
         ) {
-          this.reply(m.chat, `🟥 You don't have enough gold`, m)
-          continue // Gold finished
-        }
-        if (plugin.level > _user.level) {
-          this.reply(
-            m.chat,
-            `🟥 Level required ${plugin.level} to use this command. \nYour level ${_user.level}`,
-            m
+          this.reply(m.chat, `🟥 Sie haben nicht genug Gold`, m)
+continue // Gold abgeschlossen
+}
+if (plugin.level > _user.level) {
+  this.reply(
+    m.chat,
+    `🟥 Benötigtes Level ${plugin.level}, um diesen Befehl zu verwenden. \nIhr Level: ${_user.level}`,
+    m
+  )
+  continue // Wenn das Level nicht erreicht wurde
+}
+let extra = {
+  match,
+  usedPrefix,
+  noPrefix,
+  _args,
+  args,
+  command,
+  text,
+  conn: this,
+  participants,
+  groupMetadata,
+  user,
+  bot,
+  isROwner,
+  isOwner,
+  isRAdmin,
+  isAdmin,
+  isBotAdmin,
+  isPrems,
+  chatUpdate,
+  __dirname: ___dirname,
+  __filename,
+}
+try {
+  await plugin.call(this, m, extra)
+  if (!isPrems) m.credit = m.credit || plugin.credit || false
+} catch (e) {
+  // Fehler aufgetreten
+  m.error = e
+  console.error(e)
+  if (e) {
+    let text = format(e)
+    for (let key of Object.values(global.APIKeys))
+      text = text.replace(new RegExp(key, 'g'), '#HIDDEN#')
+    if (e.name)
+      for (let [jid] of global.owner.filter(
+        ([number, _, isDeveloper]) => isDeveloper && number
+      )) {
+        let data = (await this.onWhatsApp(jid))[0] || {}
+        if (data.exists)
+          return m.reply(
+            `*🗂️ Plugin:* ${m.plugin}\n*👤 Sender:* ${m.sender}\n*💬 Chat:* ${m.chat}\n*💻 Befehl:* ${usedPrefix}${command} ${args.join(' ')}\n📄 *Fehlerprotokoll:*\n\n${text}`.trim(),
+            data.jid
           )
-          continue // If the level has not been reached
-        }
-        let extra = {
-          match,
-          usedPrefix,
-          noPrefix,
-          _args,
-          args,
-          command,
-          text,
-          conn: this,
-          participants,
-          groupMetadata,
-          user,
-          bot,
-          isROwner,
-          isOwner,
-          isRAdmin,
-          isAdmin,
-          isBotAdmin,
-          isPrems,
-          chatUpdate,
-          __dirname: ___dirname,
-          __filename,
-        }
-        try {
-          await plugin.call(this, m, extra)
-          if (!isPrems) m.credit = m.credit || plugin.credit || false
-        } catch (e) {
-          // Error occured
-          m.error = e
-          console.error(e)
-          if (e) {
-            let text = format(e)
-            for (let key of Object.values(global.APIKeys))
-              text = text.replace(new RegExp(key, 'g'), '#HIDDEN#')
-            if (e.name)
-              for (let [jid] of global.owner.filter(
-                ([number, _, isDeveloper]) => isDeveloper && number
-              )) {
-                let data = (await this.onWhatsApp(jid))[0] || {}
-                if (data.exists)
-                  return m.reply(
-                    `*🗂️ Plugin:* ${m.plugin}\n*👤 Sender:* ${m.sender}\n*💬 Chat:* ${m.chat}\n*💻 Command:* ${usedPrefix}${command} ${args.join(' ')}\n📄 *Error Logs:*\n\n${text}`.trim(),
-                    data.jid
-                  )
-              }
-            m.reply(text)
-          }
-        } finally {
-          // m.reply(util.format(_user))
-          if (typeof plugin.after === 'function') {
-            try {
-              await plugin.after.call(this, m, extra)
-            } catch (e) {
-              console.error(e)
-            }
-          }
-          if (m.credit) m.reply(`You used *${+m.credit}*`)
-        }
-        break
       }
-    }
-  } catch (e) {
-    console.error(e)
-  } finally {
-    if (opts['queque'] && m.text) {
-      const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id)
-      if (quequeIndex !== -1) this.msgqueque.splice(quequeIndex, 1)
-    }
-    //console.log(global.db.data.users[m.sender])
-    let user,
-      stats = global.db.data.stats
-    if (m) {
-      if (m.sender && (user = global.db.data.users[m.sender])) {
-        user.exp += m.exp
-        user.credit -= m.credit * 1
-        user.bank -= m.bank
-        user.chicken -= m.chicken
-      }
-
-      let stat
-      if (m.plugin) {
-        let now = +new Date()
-        if (m.plugin in stats) {
-          stat = stats[m.plugin]
-          if (!isNumber(stat.total)) stat.total = 1
-          if (!isNumber(stat.success)) stat.success = m.error != null ? 0 : 1
-          if (!isNumber(stat.last)) stat.last = now
-          if (!isNumber(stat.lastSuccess)) stat.lastSuccess = m.error != null ? 0 : now
-        } else
-          stat = stats[m.plugin] = {
-            total: 1,
-            success: m.error != null ? 0 : 1,
-            last: now,
-            lastSuccess: m.error != null ? 0 : now,
-          }
-        stat.total += 1
-        stat.last = now
-        if (m.error == null) {
-          stat.success += 1
-          stat.lastSuccess = now
-        }
-      }
-    }
-
+    m.reply(text)
+  }
+} finally {
+  // m.reply(util.format(_user))
+  if (typeof plugin.after === 'function') {
     try {
-      if (!opts['noprint']) await (await import('./lib/print.js')).default(m, this)
+      await plugin.after.call(this, m, extra)
     } catch (e) {
-      console.log(m, m.quoted, e)
+      console.error(e)
     }
-    if (process.env.autoRead) await conn.readMessages([m.key])
-    if (process.env.statusview && m.key.remoteJid === 'status@broadcast')
-      await conn.readMessages([m.key])
+  }
+  if (m.credit) m.reply(`Sie haben *${+m.credit}* verwendet`)
+}
+break
+}
+} catch (e) {
+console.error(e)
+} finally {
+if (opts['queque'] && m.text) {
+  const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id)
+  if (quequeIndex !== -1) this.msgqueque.splice(quequeIndex, 1)
+}
+//console.log(global.db.data.users[m.sender])
+let user,
+  stats = global.db.data.stats
+if (m) {
+  if (m.sender && (user = global.db.data.users[m.sender])) {
+    user.exp += m.exp
+    user.credit -= m.credit * 1
+    user.bank -= m.bank
+    user.chicken -= m.chicken
+  }
+
+  let stat
+  if (m.plugin) {
+    let now = +new Date()
+    if (m.plugin in stats) {
+      stat = stats[m.plugin]
+      if (!isNumber(stat.total)) stat.total = 1
+      if (!isNumber(stat.success)) stat.success = m.error != null ? 0 : 1
+      if (!isNumber(stat.last)) stat.last = now
+      if (!isNumber(stat.lastSuccess)) stat.lastSuccess = m.error != null ? 0 : now
+    } else
+      stat = stats[m.plugin] = {
+        total: 1,
+        success: m.error != null ? 0 : 1,
+        last: now,
+        lastSuccess: m.error != null ? 0 : now,
+      }
+    stat.total += 1
+    stat.last = now
+    if (m.error == null) {
+      stat.success += 1
+      stat.lastSuccess = now
+    }
   }
 }
 
+try {
+  if (!opts['noprint']) await (await import('./lib/print.js')).default(m, this)
+} catch (e) {
+  console.log(m, m.quoted, e)
+}
+if (process.env.autoRead) await conn.readMessages([m.key])
+if (process.env.statusview && m.key.remoteJid === 'status@broadcast')
+  await conn.readMessages([m.key])
+}
+
 /**
- * Handle groups participants update
+ * Gruppenmitgliedschaften aktualisieren
  * @param {import("@whiskeysockets/baileys").BaileysEventMap<unknown>["group-participants.update"]} groupsUpdate
  */
 export async function participantsUpdate({ id, participants, action }) {
@@ -543,17 +541,17 @@ export async function participantsUpdate({ id, participants, action }) {
             pp = await this.profilePictureUrl(user, 'image')
             ppgp = await this.profilePictureUrl(id, 'image')
           } catch (error) {
-            console.error(`Error retrieving profile picture: ${error}`)
-            pp = 'https://i.imgur.com/8B4jwGq.jpeg' // Assign default image URL
-            ppgp = 'https://i.imgur.com/8B4jwGq.jpeg' // Assign default image URL
+            console.error(`Fehler beim Abrufen des Profilbilds: ${error}`)
+            pp = 'https://i.imgur.com/8B4jwGq.jpeg' // Standard-Bild-URL zuweisen
+            ppgp = 'https://i.imgur.com/8B4jwGq.jpeg' // Standard-Bild-URL zuweisen
           } finally {
-            let text = (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user')
+            let text = (chat.sWelcome || this.welcome || conn.welcome || 'Willkommen, @user')
               .replace('@group', await this.getName(id))
-              .replace('@desc', groupMetadata.desc?.toString() || 'error')
+              .replace('@desc', groupMetadata.desc?.toString() || 'Fehler')
               .replace('@user', '@' + user.split('@')[0])
 
             let nthMember = groupMetadata.participants.length
-            let secondText = `Welcome, ${await this.getName(user)}, our ${nthMember}th member`
+            let secondText = `Willkommen, ${await this.getName(user)}, unser ${nthMember}. Mitglied`
 
             let welcomeApiUrl = `https://welcome.guruapi.tech/welcome-image?username=${encodeURIComponent(
               await this.getName(user)
@@ -575,7 +573,7 @@ export async function participantsUpdate({ id, participants, action }) {
                   mentionedJid: [user],
                   externalAdReply: {
                     title: 'silva ᴛʜᴇ sylivanus ʙᴏᴛ',
-                    body: 'welcome to Group',
+                    body: 'Willkommen in der Gruppe',
                     thumbnailUrl: welcomeApiUrl,
                     sourceUrl: 'https://whatsapp.com/channel/0029VaAkETLLY6d8qhLmZt2v',
                     mediaType: 1,
@@ -584,7 +582,7 @@ export async function participantsUpdate({ id, participants, action }) {
                 },
               })
             } catch (error) {
-              console.error(`Error generating welcome image: ${error}`)
+              console.error(`Fehler beim Generieren des Willkommensbilds: ${error}`)
             }
           }
         }
@@ -600,17 +598,17 @@ export async function participantsUpdate({ id, participants, action }) {
             pp = await this.profilePictureUrl(user, 'image')
             ppgp = await this.profilePictureUrl(id, 'image')
           } catch (error) {
-            console.error(`Error retrieving profile picture: ${error}`)
-            pp = 'https://i.imgur.com/8B4jwGq.jpeg' // Assign default image URL
-            ppgp = 'https://i.imgur.com/8B4jwGq.jpeg' // Assign default image URL
+            console.error(`Fehler beim Abrufen des Profilbilds: ${error}`)
+            pp = 'https://i.imgur.com/8B4jwGq.jpeg' // Standard-Bild-URL zuweisen
+            ppgp = 'https://i.imgur.com/8B4jwGq.jpeg' // Standard-Bild-URL zuweisen
           } finally {
-            let text = (chat.sBye || this.bye || conn.bye || 'HELLO, @user').replace(
+            let text = (chat.sBye || this.bye || conn.bye || 'HALLO, @user').replace(
               '@user',
               '@' + user.split('@')[0]
             )
 
             let nthMember = groupMetadata.participants.length
-            let secondText = `Goodbye, our ${nthMember}th group member`
+            let secondText = `Auf Wiedersehen, unser ${nthMember}. Gruppenmitglied`
 
             let leaveApiUrl = `https://welcome.guruapi.tech/leave-image?username=${encodeURIComponent(
               await this.getName(user)
@@ -632,7 +630,7 @@ export async function participantsUpdate({ id, participants, action }) {
                   mentionedJid: [user],
                   externalAdReply: {
                     title: 'silva ᴛʜᴇ sylivanus ʙᴏᴛ',
-                    body: 'Goodbye from  Group',
+                    body: 'Auf Wiedersehen von der Gruppe',
                     thumbnailUrl: leaveApiUrl,
                     sourceUrl: 'https://whatsapp.com/channel/0029VaAkETLLY6d8qhLmZt2v',
                     mediaType: 1,
@@ -641,7 +639,7 @@ export async function participantsUpdate({ id, participants, action }) {
                 },
               })
             } catch (error) {
-              console.error(`Error generating leave image: ${error}`)
+              console.error(`Fehler beim Generieren des Abschiedsbilds: ${error}`)
             }
           }
         }
@@ -652,7 +650,7 @@ export async function participantsUpdate({ id, participants, action }) {
         chat.sPromote ||
         this.spromote ||
         conn.spromote ||
-        `${emoji.promote} @user *is now admin*`
+        `${emoji.promote} @user *ist jetzt Admin*`
       ).replace('@user', '@' + participants[0].split('@')[0])
 
       if (chat.detect) {
@@ -667,7 +665,7 @@ export async function participantsUpdate({ id, participants, action }) {
         chat.sDemote ||
         this.sdemote ||
         conn.sdemote ||
-        `${emoji.demote} @user *demoted from admin*`
+        `${emoji.demote} @user *herabgestuft von Admin*`
       ).replace('@user', '@' + participants[0].split('@')[0])
 
       if (chat.detect) {
@@ -681,7 +679,7 @@ export async function participantsUpdate({ id, participants, action }) {
 }
 
 /**
- * Handle groups update
+ * Gruppenaktualisierungen
  * @param {import("@whiskeysockets/baileys").BaileysEventMap<unknown>["groups.update"]} groupsUpdate
  */
 export async function groupsUpdate(groupsUpdate) {
@@ -709,53 +707,53 @@ export async function groupsUpdate(groupsUpdate) {
         chats.sDesc ||
         this.sDesc ||
         conn.sDesc ||
-        `*${emoji.desc} Description has been changed to*\n@desc`
+        `*${emoji.desc} Beschreibung wurde geändert auf*\n@desc`
       ).replace('@desc', groupUpdate.desc)
     } else if (groupUpdate.subject) {
       text = (
         chats.sSubject ||
         this.sSubject ||
         conn.sSubject ||
-        `*${emoji.subject} Subject has been changed to*\n@subject`
+        `*${emoji.subject} Betreff wurde geändert auf*\n@subject`
       ).replace('@subject', groupUpdate.subject)
     } else if (groupUpdate.icon) {
       text = (
         chats.sIcon ||
         this.sIcon ||
         conn.sIcon ||
-        `*${emoji.icon} Icon has been changed*`
+        `*${emoji.icon} Icon wurde geändert*`
       ).replace('@icon', groupUpdate.icon)
     } else if (groupUpdate.revoke) {
       text = (
         chats.sRevoke ||
         this.sRevoke ||
         conn.sRevoke ||
-        `*${emoji.revoke} Group link has been changed to*\n@revoke`
+        `*${emoji.revoke} Gruppenlink wurde geändert auf*\n@revoke`
       ).replace('@revoke', groupUpdate.revoke)
     } else if (groupUpdate.announce === true) {
       text =
         chats.sAnnounceOn ||
         this.sAnnounceOn ||
         conn.sAnnounceOn ||
-        `*${emoji.announceOn} Group is now closed!*`
+        `*${emoji.announceOn} Gruppe ist jetzt geschlossen!*`
     } else if (groupUpdate.announce === false) {
       text =
         chats.sAnnounceOff ||
         this.sAnnounceOff ||
         conn.sAnnounceOff ||
-        `*${emoji.announceOff} Group is now open!*`
+        `*${emoji.announceOff} Gruppe ist jetzt geöffnet!*`
     } else if (groupUpdate.restrict === true) {
       text =
         chats.sRestrictOn ||
         this.sRestrictOn ||
         conn.sRestrictOn ||
-        `*${emoji.restrictOn} Group is now restricted to participants only!*`
+        `*${emoji.restrictOn} Gruppe ist jetzt auf Teilnehmer beschränkt!*`
     } else if (groupUpdate.restrict === false) {
       text =
         chats.sRestrictOff ||
         this.sRestrictOff ||
         conn.sRestrictOff ||
-        `*${emoji.restrictOff} Group is now restricted to admins only!*`
+        `*${emoji.restrictOff} Gruppe ist jetzt auf Admins beschränkt!*`
     }
 
     if (!text) continue
@@ -764,7 +762,7 @@ export async function groupsUpdate(groupsUpdate) {
 }
 
 /**
-Delete Chat
+Löschen Sie Chat
  */
 export async function deleteUpdate(message) {
   try {
@@ -783,9 +781,9 @@ export async function deleteUpdate(message) {
     await this.reply(
       conn.user.id,
       `
-            ≡ deleted a message 
-            ┌─⊷  𝘼𝙉𝙏𝙄 𝘿𝙀𝙇𝙀𝙏𝙀 
-            ▢ *Number :* @${participant.split`@`[0]} 
+            ≡ Nachricht gelöscht
+            ┌─⊷  𝘼𝙉𝙏𝙄 𝘿𝙀𝙇𝙀𝙏𝙀
+            ▢ *Nummer:* @${participant.split`@`[0]}
             └──────silva───────
             `.trim(),
       msg,
@@ -800,7 +798,7 @@ export async function deleteUpdate(message) {
 }
 
 /*
- Polling Update 
+ Umfrageaktualisierung
 */
 export async function pollUpdate(message) {
   for (const { key, update } of message) {
@@ -825,7 +823,7 @@ export async function pollUpdate(message) {
 }
 
 /*
-Update presence
+Aktualisierung des Status
 */
 export async function presenceUpdate(presenceUpdate) {
   const id = presenceUpdate.id
@@ -836,16 +834,16 @@ export async function presenceUpdate(presenceUpdate) {
   if (user?.afk && status === 'composing' && user.afk > -1) {
     if (user.banned) {
       user.afk = -1
-      user.afkReason = 'User Banned Afk'
+      user.afkReason = 'Benutzer gesperrt Afk'
       return
     }
 
     await console.log('AFK')
     const username = nouser[0].split('@')[0]
     const timeAfk = new Date() - user.afk
-    const caption = `\n@${username} has stopped being AFK and is currently typing.\n\nReason: ${
-      user.afkReason ? user.afkReason : 'No Reason'
-    }\nFor the past ${timeAfk.toTimeString()}.\n`
+    const caption = `\n@${username} hat aufgehört, AFK zu sein, und schreibt derzeit.\n\nGrund: ${
+      user.afkReason ? user.afkReason : 'Kein Grund'
+    }\nFür die letzten ${timeAfk.toTimeString()}.\n`
 
     this.reply(id, caption, null, {
       mentions: this.parseMention(caption),
@@ -859,7 +857,7 @@ export async function presenceUpdate(presenceUpdate) {
 dfail
  */
 global.dfail = (type, m, conn) => {
-  const userTag = `👋 Hai *@${m.sender.split('@')[0]}*, `
+  const userTag = `👋 Hey *@${m.sender.split('@')[0]}*, `
   const emoji = {
     general: '⚙️',
     owner: '👑',
@@ -876,28 +874,28 @@ global.dfail = (type, m, conn) => {
   }
 
   const msg = {
-    owner: `*${emoji.owner} Owner's Query*\n
-    ${userTag} This command can only be used by the *Bot Owner*!`,
-    moderator: `*${emoji.moderator} Moderator's Query*\n
-    ${userTag} This command can only be used by *Moderators*!`,
-    premium: `*${emoji.premium} Premium Query*\n
-    ${userTag} This command is only for *Premium Members*!`,
-    group: `*${emoji.group} Group Query*\n
-    ${userTag} This command can only be used in *Group Chats*!`,
-    private: `*${emoji.private} Private Query*\n
-    ${userTag} This command can only be used in *Private Chats*!`,
-    admin: `*${emoji.admin} Admin's Query*\n
-    ${userTag} This command is only for *Group Admins*!`,
-    botAdmin: `*${emoji.botAdmin} Bot Admin's Query*\n
-    ${userTag} Make the bot an *Admin* to use this command!`,
-    unreg: `*${emoji.unreg} Registration Query*\n
-    ${userTag} Please register to use this feature by typing:\n\n*#register name.age*\n\nExample: *#register ${m.name}.18*!`,
-    nsfw: `*${emoji.nsfw} NSFW Query*\n
-    ${userTag} NSFW is not active. Please contact the Group admin to enable this feature!`,
-    restrict: `*${emoji.restrict} Inactive Feature Query*\n
-    ${userTag} This feature is *disabled*!`,
-  }[type]
-  if (msg) return m.reply(msg)
+  owner: `*${emoji.owner} Anfrage des Besitzers*\n
+  ${userTag} Dieser Befehl kann nur vom *Bot-Besitzer* verwendet werden!`,
+  moderator: `*${emoji.moderator} Anfrage des Moderators*\n
+  ${userTag} Dieser Befehl kann nur von *Moderatoren* verwendet werden!`,
+  premium: `*${emoji.premium} Premium-Anfrage*\n
+  ${userTag} Dieser Befehl ist nur für *Premium-Mitglieder*!`,
+  group: `*${emoji.group} Gruppenanfrage*\n
+  ${userTag} Dieser Befehl kann nur in *Gruppenchats* verwendet werden!`,
+  private: `*${emoji.private} Private Anfrage*\n
+  ${userTag} Dieser Befehl kann nur in *Privatchats* verwendet werden!`,
+  admin: `*${emoji.admin} Anfrage des Admins*\n
+  ${userTag} Dieser Befehl ist nur für *Gruppenadmins*!`,
+  botAdmin: `*${emoji.botAdmin} Anfrage des Bot-Admins*\n
+  ${userTag} Machen Sie den Bot zu einem *Admin*, um diesen Befehl zu verwenden!`,
+  unreg: `*${emoji.unreg} Registrierungsanfrage*\n
+  ${userTag} Bitte registrieren Sie sich, um dieses Merkmal zu verwenden, indem Sie eingeben:\n\n*#register name.alter*\n\nBeispiel: *#register ${m.name}.18*!`,
+  nsfw: `*${emoji.nsfw} NSFW-Anfrage*\n
+  ${userTag} NSFW ist nicht aktiv. Bitte wenden Sie sich an den Gruppenadmin, um dieses Merkmal zu aktivieren!`,
+  restrict: `*${emoji.restrict} Anfrage einer inaktiven Funktion*\n
+  ${userTag} Dieses Merkmal ist *deaktiviert*!`,
+}[type]
+if (msg) return m.reply(msg)
 }
 
 let file = global.__filename(import.meta.url, true)

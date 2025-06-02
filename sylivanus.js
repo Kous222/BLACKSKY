@@ -65,15 +65,15 @@ async function main() {
   const txt = process.env.SESSION_ID
 
   if (!txt) {
-    console.error('Environment variable not found.')
+    console.error('Umgebungsvariable nicht gefunden.')
     return
   }
 
   try {
     await processTxtAndSaveCredentials(txt)
-    console.log('processTxtAndSaveCredentials completed.')
+    console.log('processTxtAndSaveCredentials abgeschlossen.')
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Fehler:', error)
   }
 }
 
@@ -107,10 +107,10 @@ async function gandu() {
       process.exit(1)
     } else {
       console.log(`${endi}`)
-      console.log(chalk.bgBlack(chalk.redBright('Starting silva md bot')))
+      console.log(chalk.bgBlack(chalk.redBright('Starten von silva md bot')))
     }
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Fehler:', error)
   }
 }
 
@@ -281,23 +281,23 @@ if (pairingCode && !conn.authState.creds.registered) {
 
     if (!Object.keys(PHONENUMBER_MCC).some(v => phoneNumber.startsWith(v))) {
       console.log(
-        chalk.bgBlack(chalk.redBright("Start with your country's WhatsApp code, Example : 254xxx"))
+        chalk.bgBlack(chalk.redBright("Starten Sie mit Ihrer WhatsApp-Landescode, Beispiel: 254xxx"))
       )
       process.exit(0)
     }
   } else {
     phoneNumber = await question(
-      chalk.bgBlack(chalk.greenBright(`Please type your WhatsApp number : `))
+      chalk.bgBlack(chalk.greenBright(`Bitte geben Sie Ihre WhatsApp-Nummer ein: `))
     )
     phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
 
     if (!Object.keys(PHONENUMBER_MCC).some(v => phoneNumber.startsWith(v))) {
       console.log(
-        chalk.bgBlack(chalk.redBright("Start with your country's WhatsApp code, Example : 254xxx"))
+        chalk.bgBlack(chalk.redBright("Starten Sie mit Ihrer WhatsApp-Landescode, Beispiel: 254xxx"))
       )
 
       phoneNumber = await question(
-        chalk.bgBlack(chalk.greenBright(`Please type your WhatsApp number : `))
+        chalk.bgBlack(chalk.greenBright(`Bitte geben Sie Ihre WhatsApp-Nummer ein: `))
       )
       phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
       rl.close()
@@ -308,12 +308,12 @@ if (pairingCode && !conn.authState.creds.registered) {
     let code = await conn.requestPairingCode(phoneNumber)
     code = code?.match(/.{1,4}/g)?.join('-') || code
     const pairingCode =
-      chalk.bold.greenBright('Your Pairing Code:') + ' ' + chalk.bgGreenBright(chalk.black(code))
+      chalk.bold.greenBright('Ihr Pairing-Code:') + ' ' + chalk.bgGreenBright(chalk.black(code))
     console.log(pairingCode)
   }, 3000)
 }
 
-conn.logger.info('\nWaiting For Login please redeploy if it doesnt work\n')
+conn.logger.info('\nWarten auf Anmeldung, bitte neu deployen, wenn es nicht funktioniert\n')
 
 if (!opts['test']) {
   if (global.db) {
@@ -333,13 +333,13 @@ if (opts['server']) (await import('./server.js')).default(global.conn, PORT)
 function runCleanup() {
   clearTmp()
     .then(() => {
-      console.log('Temporary file cleanup completed.')
+      console.log('Bereinigung temporärer Dateien abgeschlossen.')
     })
     .catch(error => {
-      console.error('An error occurred during temporary file cleanup:', error)
+      console.error('Ein Fehler ist bei der Bereinigung temporärer Dateien aufgetreten:', error)
     })
     .finally(() => {
-      // 2 minutes
+      // 2 Minuten
       setTimeout(runCleanup, 1000 * 60 * 2)
     })
 }
@@ -371,32 +371,32 @@ async function connectionUpdate(update) {
     try {
       conn.logger.info(await global.reloadHandler(true))
     } catch (error) {
-      console.error('Error reloading handler:', error)
+      console.error('Fehler beim Neuladen des Handlers:', error)
     }
   }
 
   if (code && (code === DisconnectReason.restartRequired || code === 428)) {
-    conn.logger.info(chalk.yellow('\n Restart Required... Restarting'))
+    conn.logger.info(chalk.yellow('\n Neustart erforderlich... Neustarten'))
     process.send('reset')
   }
 
   if (global.db.data == null) loadDatabase()
 
   if (!pairingCode && useQr && qr !== 0 && qr !== undefined) {
-    conn.logger.info(chalk.yellow('\nLogging in....'))
+    conn.logger.info(chalk.yellow('\nAnmeldung....'))
   }
 
   if (connection === 'open') {
     const { jid, name } = conn.user
-    const msg = `💖𝑺𝑰𝑳𝑽𝑨 𝑴𝑫 𝑩𝑶𝑻💖 \n\nGreetings ${name}, ✅ Congrats you have successfully deployed *Silva MD Bot* \n\n if your bot sent a message to 254743706010 it is running perfect\n if not relink using silva tech session gen\n ⚙️ *Prefix:*\n 🏢 *Organization:* *Silva Tech Inc.* \n 🗓️ *CREATED:* *Sep 2024* \n\n 🌟 *Follow our WhatsApp Channel for updates:* \n https://whatsapp.com/channel/0029VaAkETLLY6d8qhLmZt2v \n\n 🔄 *New features coming soon. Stay tuned!* \n\n Developer Sylivanus Momanyi\nfounder of Silva Tech Inc`
+    const msg = `💖𝑺𝑰𝑳𝑽𝑨 𝑴𝑫 𝑩𝑶𝑻💖 \n\nGreetings ${name}, ✅ Sie haben *Silva MD Bot* erfolgreich bereitgestellt \n\n wenn Ihr Bot eine Nachricht an 254743706010 gesendet hat, läuft er perfekt\n wenn nicht, verbinden Sie sich erneut mit silva tech session gen\n ⚙️ *Präfix:*\n 🏢 *Organisation:* *Silva Tech Inc.* \n 🗓️ *ERSTELLT:* *Sep 2024* \n\n 🌟 *Folgen Sie unserem WhatsApp-Kanal für Updates:* \n https://whatsapp.com/channel/0029VaAkETLLY6d8qhLmZt2v \n\n 🔄 *Neue Funktionen kommen bald. Bleiben Sie dran!* \n\n Entwickler Sylivanus Momanyi\nGründer von Silva Tech Inc`
 
     await conn.sendMessage(jid, { text: msg, mentions: [jid] }, { quoted: null })
 
-    conn.logger.info(chalk.yellow('\nSilva is on 𝖶𝖮𝖱𝖪'))
+    conn.logger.info(chalk.yellow('\nSilva ist auf 𝖶𝖮𝖱𝖧'))
   }
 
   if (connection === 'close') {
-    conn.logger.error(chalk.yellow(`\nConnection closed... Get a new session`))
+    conn.logger.error(chalk.yellow(`\nVerbindung geschlossen... Holen Sie sich eine neue Sitzung`))
   }
 }
 
@@ -433,19 +433,19 @@ global.reloadHandler = async function (restatConn) {
     conn.ev.off('creds.update', conn.credsUpdate)
   }
 
-  conn.welcome = `👋 Hey @user, 🎉 *Welcome to* _@group_! 🔍 Check the group description: @desc 💬 Let’s keep the vibes positive! 🚀`
-  conn.bye = `😢 *@user has left the building!* 👋 Farewell and best wishes!`
-  conn.spromote = `🆙 *Promotion Alert!* 👑 @user is now an *Admin*! Let's gooo! 🎊`
-  conn.sdemote = `🔽 *Demotion Notice!* @user is no longer an admin.`
-  conn.sDesc = `📝 *Group Description Updated!* 🔍 New Description: @desc`
-  conn.sSubject = `🖋️ *Group Name Changed!* 🔔 New Title: _@group_`
-  conn.sIcon = `🖼️ *Group Icon Updated!* Check out the fresh new look! 🔥`
-  conn.sRevoke = `🔗 *Group Link Reset!* Here’s the new invite link: @revoke`
-  conn.sAnnounceOn = `🔒 *Group Closed!* Only admins can now send messages.`
-  conn.sAnnounceOff = `🔓 *Group Open!* Everyone can now chat freely. 🎉`
-  conn.sRestrictOn = `🚫 *Edit Permissions Locked!* Only admins can edit group info now.`
-  conn.sRestrictOff = `✅ *Edit Permissions Opened!* All members can now update group info.`
-  conn.sDelete = `🗑️ *Message Deleted!* This message has been removed.`
+  conn.welcome = `👋 Hey @user, 🎉 *Willkommen bei* _@group_! 🔍 Überprüfen Sie die Gruppenbeschreibung: @desc 💬 Lassen Sie uns die Stimmung positiv halten! 🚀`
+  conn.bye = `😢 *@user hat das Gebäude verlassen!* 👋 Auf Wiedersehen und alles Gute!`
+  conn.spromote = `🆙 *Beförderungsalarm!* 👑 @user ist jetzt ein *Admin*! Lass uns gehen! 🎊`
+  conn.sdemote = `🔽 *Abstiegsbenachrichtigung!* @user ist kein Admin mehr.`
+  conn.sDesc = `📝 *Gruppenbeschreibung aktualisiert!* 🔍 Neue Beschreibung: @desc`
+  conn.sSubject = `🖋️ *Gruppentitel geändert!* 🔔 Neuer Titel: _@group_`
+  conn.sIcon = `🖼️ *Gruppenicon aktualisiert!* Sehen Sie sich das frische neue Aussehen an! 🔥`
+  conn.sRevoke = `🔗 *Gruppenlink zurückgesetzt!* Hier ist der neue Einladungslink: @revoke`
+  conn.sAnnounceOn = `🔒 *Gruppe geschlossen!* Nur Admins können jetzt Nachrichten senden.`
+    conn.sAnnounceOff = `🔓 *Gruppe geöffnet!* Jeder kann jetzt frei chatten. 🎉`
+  conn.sRestrictOn = `🚫 *Bearbeitungsrechte gesperrt!* Nur Admins können jetzt Gruppeninfo bearbeiten.`
+  conn.sRestrictOff = `✅ *Bearbeitungsrechte freigegeben!* Alle Mitglieder können jetzt Gruppeninfo aktualisieren.`
+  conn.sDelete = `🗑️ *Nachricht gelöscht!* Diese Nachricht wurde entfernt.`
 
   conn.handler = handler.handler.bind(global.conn)
   conn.pollUpdate = handler.pollUpdate.bind(global.conn)
@@ -503,23 +503,23 @@ global.reload = async (_ev, filename) => {
   if (pluginFilter(filename)) {
     const dir = global.__filename(join(pluginFolder, filename), true)
     if (filename in global.plugins) {
-      if (existsSync(dir)) conn.logger.info(`\nUpdated plugin - '${filename}'`)
+      if (existsSync(dir)) conn.logger.info(`\nAktualisiertes Plugin - '${filename}'`)
       else {
-        conn.logger.warn(`\nDeleted plugin - '${filename}'`)
+        conn.logger.warn(`\nGelöschtes Plugin - '${filename}'`)
         return delete global.plugins[filename]
       }
-    } else conn.logger.info(`\nNew plugin - '${filename}'`)
+    } else conn.logger.info(`\nNeues Plugin - '${filename}'`)
     const err = syntaxerror(readFileSync(dir), filename, {
       sourceType: 'module',
       allowAwaitOutsideFunction: true,
     })
-    if (err) conn.logger.error(`\nSyntax error while loading '${filename}'\n${format(err)}`)
+    if (err) conn.logger.error(`\nSyntaxfehler beim Laden von '${filename}'\n${format(err)}`)
     else {
       try {
         const module = await import(`${global.__filename(dir)}?update=${Date.now()}`)
         global.plugins[filename] = module.default || module
       } catch (e) {
-        conn.logger.error(`\nError require plugin '${filename}\n${format(e)}'`)
+        conn.logger.error(`\nFehler beim Laden des Plugins '${filename}\n${format(e)}'`)
       } finally {
         global.plugins = Object.fromEntries(
           Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
@@ -581,7 +581,7 @@ async function _quickTest() {
 async function saafsafai() {
   if (stopped === 'close' || !conn || !conn.user) return
   clearsession()
-  console.log(chalk.cyanBright('\nStored Sessions Cleared'))
+  console.log(chalk.cyanBright('\nGespeicherte Sitzungen gelöscht'))
 }
 
 setInterval(saafsafai, 10 * 60 * 1000)
@@ -590,6 +590,5 @@ _quickTest().catch(console.error)
 
 //..
 //silva tech inc product
-
 
 // code crafted by silva
