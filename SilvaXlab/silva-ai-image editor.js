@@ -1,9 +1,10 @@
+
 import FormData from "form-data";
 import Jimp from "jimp";
 
 async function processing(urlPath, method) {
 	return new Promise(async (resolve, reject) => {
-		let Methods = ["enhance", "recolor", "dehaze"];
+		let Methods = ["verbessern", "farbfüllen", "entnebeln"];
 		Methods.includes(method) ? (method = method) : (method = Methods[0]);
 		let buffer,
 			Form = new FormData(),
@@ -13,7 +14,7 @@ async function processing(urlPath, method) {
 			contentType: "multipart/form-data; charset=uttf-8",
 		});
 		Form.append("image", Buffer.from(urlPath), {
-			filename: "enhance_image_body.jpg",
+			filename: "verbessertes_bild_body.jpg",
 			contentType: "image/jpeg",
 		});
 		Form.submit(
@@ -47,62 +48,62 @@ async function processing(urlPath, method) {
 }
 let handler = async (m, { conn, usedPrefix, command }) => {
 	switch (command) {
-		case "enhancer":
-		case "unblur":
-		case "enhance":
+		case "verbesserer":
+		case "unschärfenentfernen":
+		case "verbessern":
 			{
-				conn.enhancer = conn.enhancer ? conn.enhancer : {};
-				if (m.sender in conn.enhancer)
-					throw "Wait for one image to be processed.";
+				conn.verbesserer = conn.verbesserer ? conn.verbesserer : {};
+				if (m.sender in conn.verbesserer)
+					throw "Warten Sie, bis ein Bild verarbeitet wurde.";
 				let q = m.quoted ? m.quoted : m;
 				let mime = (q.msg || q).mimetype || q.mediaType || "";
 				if (!mime)
-					throw `Enter the command along with the image`;
+					throw `Geben Sie den Befehl zusammen mit dem Bild ein`;
 				if (!/image\/(jpe?g|png)/.test(mime))
-					throw ` ${mime} Doesnot Support`;
-				else conn.enhancer[m.sender] = true;
-				m.reply(wait);
+					throw ` ${mime} wird nicht unterstützt`;
+				else conn.verbesserer[m.sender] = true;
+				m.reply('Warten Sie bitte...');
 				let img = await q.download?.();
 				let error;
 				try {
-					const This = await processing(img, "enhance");
+					const This = await processing(img, "verbessern");
 					conn.sendFile(m.chat, This, "shizo.img", maker, m);
 				} catch (er) {
 					error = true;
 				} finally {
 					if (error) {
-						m.reply("Disconnected from server");
+						m.reply("Verbindung zum Server unterbrochen");
 					}
-					delete conn.enhancer[m.sender];
+					delete conn.verbesserer[m.sender];
 				}
 			}
 			break;
-		case "colorize":
-		case "colorizer":
+		case "farbfüllen":
+		case "farbfüller":
 			{
-				conn.recolor = conn.recolor ? conn.recolor : {};
-				if (m.sender in conn.recolor)
-					throw "Wait for one image to be processed";
+				conn.farbfüllen = conn.farbfüllen ? conn.farbfüllen : {};
+				if (m.sender in conn.farbfüllen)
+					throw "Warten Sie, bis ein Bild verarbeitet wurde";
 				let q = m.quoted ? m.quoted : m;
 				let mime = (q.msg || q).mimetype || q.mediaType || "";
 				if (!mime)
-					throw `Enter the command along with image`;
+					throw `Geben Sie den Befehl zusammen mit Bild ein`;
 				if (!/image\/(jpe?g|png)/.test(mime))
-					throw `${mime} is not editable`;
-				else conn.recolor[m.sender] = true;
-				m.reply(wait);
+					throw `${mime} ist nicht bearbeitbar`;
+				else conn.farbfüllen[m.sender] = true;
+				m.reply('Warten Sie bitte...');
 				let img = await q.download?.();
 				let error;
 				try {
-					const This = await processing(img, "enhance");
+					const This = await processing(img, "farbfüllen");
 					conn.sendFile(m.chat, This, "shizo.img", maker, m);
 				} catch (er) {
 					error = true;
 				} finally {
 					if (error) {
-						m.reply("Disconnected from server");
+						m.reply("Verbindung zum Server unterbrochen");
 					}
-					delete conn.recolor[m.chat];
+					delete conn.farbfüllen[m.chat];
 				}
 			}
 			break;
@@ -111,25 +112,25 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 			{
 				conn.hdr = conn.hdr ? conn.hdr : {};
 				if (m.sender in conn.hdr)
-					throw "Wait to be processed one image then add another one dude";
+					throw "Warten Sie, bis ein Bild verarbeitet wurde, dann fügen Sie ein anderes hinzu";
 				let q = m.quoted ? m.quoted : m;
 				let mime = (q.msg || q).mimetype || q.mediaType || "";
 				if (!mime)
-					throw `Enter the Command Along with image`;
+					throw `Geben Sie den Befehl zusammen mit Bild ein`;
 				if (!/image\/(jpe?g|png)/.test(mime))
-					throw `${mime} Doesnot Editable`;
+					throw `${mime} ist nicht bearbeitbar`;
 				else conn.hdr[m.sender] = true;
-				m.reply(wait);
+				m.reply('Warten Sie bitte...');
 				let img = await q.download?.();
 				let error;
 				try {
-					const This = await processing(img, "enhance");
+					const This = await processing(img, "verbessern");
 					conn.sendFile(m.chat, This, "shizo.img", maker, m);
 				} catch (er) {
 					error = true;
 				} finally {
 					if (error) {
-						m.reply("Server Disconnected");
+						m.reply("Verbindung zum Server unterbrochen");
 					}
 					delete conn.hdr[m.sender];
 				}
@@ -137,9 +138,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 			break;
 	}
 };
-handler.help = ['hd', 'hdr', 'unblur', 'remblur', 'colorize', 'colorizer', 'enhance', 'enhancer','dehaze','recolor' ,'enhance']
-handler.tags = ["image", "maker"];
-handler.command = ['hd', 'hdr', 'unblur', 'remblur', 'colorize', 'colorizer', 'enhance', 'enhancer','dehaze','recolor' ,'enhance']
+handler.help = ['hd', 'hdr', 'unschärfenentfernen', 'unschärfebeseitigen', 'farbfüllen', 'farbfüller', 'verbessern', 'verbesserer','entnebeln','farbfüllen' ,'verbessern']
+handler.tags = ["bild", "ersteller"];
+handler.command = ['hd', 'hdr', 'unschärfenentfernen', 'unschärfebeseitigen', 'farbfüllen', 'farbfüller', 'verbessern', 'verbesserer','entnebeln','farbfüllen' ,'verbessern']
 export default handler;
-      
-      

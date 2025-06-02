@@ -1,4 +1,3 @@
-
 export function before(m) {
     let user = global.db.data.users[m.sender]
     if (user.afk > -1) {
@@ -20,7 +19,7 @@ ${mssg.afkdel}
         if (!afkTime || afkTime < 0)
             continue
         let reason = user.afkReason || ''
-        
+
         let afkt = `
 ≡ ${mssg.afktag} 
 
@@ -28,8 +27,8 @@ ${mssg.afkdel}
 ${reason ? `▢ *${mssg.with}* : ${reason}` : ''}
 ▢ *${mssg.afktime} :* ${(new Date - afkTime).toTimeString()}`
 
- m.reply(afkt, null, {mentions: this.parseMention(afkt)})
- 
+        m.reply(afkt, null, { mentions: this.parseMention(afkt) })
+
     }
     return true
 }

@@ -1,48 +1,48 @@
 // Add Member Command Script for Silva MD Bot
-// This script allows group admins to add members using the command format: add 254700143167
+// This Skript ermöglicht es Gruppenadministratoren, Mitglieder mit dem Befehlsformat hinzuzufügen: add 254700143167
 
 let handler = async (m, { conn, args }) => {
   try {
-    // Ensure the command is used in a group
-    if (!m.isGroup) throw 'This command can only be used in group chats.';
+    // Stellen Sie sicher, dass der Befehl in einer Gruppe verwendet wird
+    if (!m.isGroup) throw 'Dieser Befehl kann nur in Gruppenchats verwendet werden.';
 
-    // Fetch group metadata
+    // Abrufen der Gruppenmetadaten
     const groupMetadata = await conn.groupMetadata(m.chat);
     const participants = groupMetadata.participants;
 
-    // Check if the bot is an admin
+    // Überprüfen Sie, ob der Bot ein Admin ist
     const botAdmin = participants.find(p => p.id === conn.user.jid && p.admin);
-    if (!botAdmin) throw 'I need to be an admin to add members!';
+    if (!botAdmin) throw 'Ich muss ein Admin sein, um Mitglieder hinzuzufügen!';
 
-    // Check if the sender is an admin
+    // Überprüfen Sie, ob der Absender ein Admin ist
     const senderAdmin = participants.find(p => p.id === m.sender && p.admin);
-    if (!senderAdmin) throw 'Only group admins can use this command!';
+    if (!senderAdmin) throw 'Nur Gruppenadmins können diesen Befehl verwenden!';
 
-    // Ensure a phone number is provided
-    if (!args[0]) throw 'Please provide a phone number to add.';
+    // Stellen Sie sicher, dass eine Telefonnummer angegeben ist
+    if (!args[0]) throw 'Bitte geben Sie eine Telefonnummer an, die hinzugefügt werden soll.';
     let target = args[0].replace(/[^0-9]/g, '') + '@s.whatsapp.net';
 
-    // Check if the user is already in the group
+    // Überprüfen Sie, ob der Benutzer bereits in der Gruppe ist
     if (participants.find(p => p.id === target)) {
-      throw 'The user is already in this group.';
+      throw 'Der Benutzer ist bereits in dieser Gruppe.';
     }
 
-    // Attempt to add the participant
+    // Versuchen Sie, den Teilnehmer hinzuzufügen
     await conn.groupParticipantsUpdate(m.chat, [target], 'add');
-    m.reply(`Silva MD bot : Successfully added @${target.split('@')[0]}`, null, { mentions: [target] });
+    m.reply(`Silva MD Bot: @${target.split('@')[0]} wurde erfolgreich hinzugefügt.`, null, { mentions: [target] });
 
   } catch (e) {
     console.error(e);
-    m.reply(`Error: ${e.message || e}`);
+    m.reply(`Fehler: ${e.message || e}`);
   }
 };
 
-handler.help = ['add <phone number>'];
-handler.tags = ['group'];
+handler.help = ['add <Telefonnummer>'];
+handler.tags = ['gruppe'];
 handler.command = /^add$/i;
 
-handler.group = true; // Restrict to group chats
-handler.admin = true; // Require the user to be an admin to use this command
-handler.botAdmin = true; // Require the bot to be an admin to execute
+handler.group = true; // Auf Gruppenchats beschränken
+handler.admin = true; // Benutzer muss ein Admin sein, um diesen Befehl zu verwenden
+handler.botAdmin = true; // Der Bot muss ein Admin sein, um diesen Befehl auszuführen
 
 export default handler;

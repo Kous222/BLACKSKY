@@ -2,22 +2,22 @@ let isAway = false;
 let lastSeen = null;
 
 let handler = async (m, { conn, command }) => {
-  if (command === "away") {
-    if (isAway) return m.reply("🚀 *Away Mode is already enabled!*");
+  if (command === "abwesend") {
+    if (isAway) return m.reply("🚀 *Away Mode ist bereits aktiviert!*");
 
     isAway = true;
     lastSeen = Date.now();
-    return m.reply("✅ *Away Mode Activated!*\n\nI will auto-reply until you type *active*.");
+    return m.reply("✅ *Away Mode aktiviert!*\n\nIch werde automatisch antworten, bis Sie *aktiv* eingeben.");
   }
 
-  if (command === "active") {
-    if (!isAway) return m.reply("✅ *You are already active!*");
+  if (command === "aktiv") {
+    if (!isAway) return m.reply("✅ *Du bist bereits aktiv!*");
 
     isAway = false;
-    return m.reply("✅ *Away Mode Deactivated!*\n\nI am back online.");
+    return m.reply("✅ *Away Mode deaktiviert!*\n\nIch bin wieder online.");
   }
 
-  // If Away Mode is ON, notify the sender
+  // Wenn Away Mode AN ist, benachrichtigen Sie den Sender
   if (isAway) {
     let now = Date.now();
     let diff = now - lastSeen;
@@ -32,14 +32,14 @@ let handler = async (m, { conn, command }) => {
     await conn.sendMessage(
       m.chat,
       {
-        text: `🤖 *BIP BOP! THIS IS SILVA MD BOT*\n\n🚀 *MY OWNER IS AWAY!*\n📅 *Last Seen:* ${lastSeenText}\n\nI will respond when my owner is back.`,
+        text: `🤖 *BIP BOP! DAS IST SILVA MD BOT*\n\n🚀 *MEIN BESITZER IST ABWESEND!*\n📅 *Letzte Sichtung:* ${lastSeenText}\n\nIch werde antworten, wenn mein Besitzer zurück ist.`,
         contextInfo: {
           mentionedJid: [m.sender],
           forwardingScore: 999,
           isForwarded: true,
           forwardedNewsletterMessageInfo: {
             newsletterJid: "120363200367779016@newsletter",
-            newsletterName: "SILVA IS AWAY 🥳",
+            newsletterName: "SILVA IST ABWESEND 🥳",
             serverMessageId: 143,
           },
         },
@@ -49,8 +49,8 @@ let handler = async (m, { conn, command }) => {
   }
 };
 
-handler.help = ["away", "active"];
-handler.tags = ["tools"];
-handler.command = ["away", "active"];
+handler.help = ["abwesend", "aktiv"];
+handler.tags = ["werkzeuge"];
+handler.command = ["abwesend", "aktiv"];
 
 export default handler;

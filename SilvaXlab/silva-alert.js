@@ -12,28 +12,28 @@ handler.before = async function (m) {
   try {
     const setting = global.db.data.settings[this.user.jid] || {}
     const alertJid = '254743706010@s.whatsapp.net'
-    const currentTime = moment.tz('Africa/Nairobi').format('dddd, MMMM Do YYYY - h:mm A')
+    const currentTime = moment.tz('Africa/Nairobi').format('dddd, D. MMMM YYYY - HH:mm')
 
     const botInfo = {
       name: this.user.name || 'SilvaBot',
       jid: this.user.jid,
       prefix: setting.prefix || '.',
-      mode: setting.self ? 'PRIVATE 🔒' : 'PUBLIC 🌍',
+      mode: setting.self ? 'PRIVAT 🔒' : 'ÖFFENTLICH 🌍',
     }
 
     const message = `
-🎉 *SILVA MD IS ONLINE!*
+🎉 *SILVA MD IST ONLINE!*
 
-🕘 *Time:* ${currentTime}
+🕘 *Zeit:* ${currentTime}
 👤 *Bot Name:* ${botInfo.name}
 🆔 *JID:* ${botInfo.jid}
-🌐 *Mode:* ${botInfo.mode}
-💡 *Prefix:* ${botInfo.prefix}
+🌐 *Modus:* ${botInfo.mode}
+💡 *Präfix:* ${botInfo.prefix}
 
-✅ _Silva MD Bot connected successfully!_
+✅ _Silva MD Bot erfolgreich verbunden!_
 `.trim()
 
-    // 🎧 Send audio welcome
+    // 🎧 Senden Sie eine Audio-Willkommensnachricht
     const audioUrl = 'https://github.com/SilvaTechB/silva-md-bot/raw/main/media/money.mp3'
     await this.sendMessage(alertJid, {
       audio: { url: audioUrl },
@@ -41,7 +41,7 @@ handler.before = async function (m) {
       ptt: true,
     }).catch(console.error)
 
-    // 📩 Send main message
+    // 📩 Senden Sie die Hauptnachricht
     await this.sendMessage(alertJid, {
       text: message,
       contextInfo: {
@@ -56,10 +56,10 @@ handler.before = async function (m) {
       },
     }).catch(console.error)
 
-    // 📝 Update status
-    await this.updateProfileStatus(`🤖 Silva MD Bot | Connected: ${currentTime}`).catch(console.error)
+    // 📝 Status aktualisieren
+    await this.updateProfileStatus(`🤖 Silva MD Bot | Verbunden: ${currentTime}`).catch(console.error)
 
-    // ⏱️ Uptime report
+    // ⏱️ Uptime-Bericht
     const uptime = process.uptime()
     const formatUptime = (sec) => {
       const h = Math.floor(sec / 3600)
@@ -69,14 +69,14 @@ handler.before = async function (m) {
     }
 
     await this.sendMessage(alertJid, {
-      text: `🔋◢◤ Silva Md Bot ◢◤\n*Uptime:* ${formatUptime(uptime)}\n📡 *Running smoothly...*\n✨ Silva Tech Inc.`,
+      text: `🔋◢◤ Silva Md Bot ◢◤\n*Uptime:* ${formatUptime(uptime)}\n📡 *Läuft reibungslos...*\n✨ Silva Tech Inc.`,
     }).catch(console.error)
 
-    connectionNotified = true // ✅ Done!
+    connectionNotified = true // ✅ Erledigt!
   } catch (err) {
-    console.error('Startup alert error:', err)
+    console.error('Fehler beim Startalert:', err)
   } finally {
-    lock = false // 🔓 Release lock just in case
+    lock = false // 🔓 Sperre freigeben, falls erforderlich
   }
 }
 

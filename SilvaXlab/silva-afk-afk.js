@@ -1,4 +1,3 @@
-
 let handler = async (m, { text, conn }) => {
     let user = global.db.data.users[m.sender]
     if (text.length >= 90) throw `✳️ ${mssg.afktemx}`
@@ -7,15 +6,15 @@ let handler = async (m, { text, conn }) => {
     m.reply(`
 ≡ *${mssg.afkdone}*
 
-▢ *${mssg.name}:* ${conn.getName(m.sender)} 
+▢ *${mssg.name}:* ${conn.getName(m.sender)}
 ▢ *${mssg.with}:* ${text ? text : ''}
 
 _${mssg.afkmsg}_
-  `, null, {mentions: conn.parseMention(text)})
+  `, null, { mentions: conn.parseMention(text) })
 }
-handler.help = ['afk']
-handler.tags = ['fun']
-handler.command = ['afk']
+handler.help = ['abwesend']
+handler.tags = ['spaß']
+handler.command = ['abwesend']
 handler.group = false
 
 export default handler

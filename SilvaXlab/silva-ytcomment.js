@@ -1,5 +1,5 @@
 let handler = async (m, { conn, text }) => {
-  if (!text) throw 'No Text'
+  if (!text) throw 'Kein Text' // Übersetzte Fehlermeldung
   conn.sendFile(
     m.chat,
     global.API('https://some-random-api.com', '/canvas/misc/youtube-comment', {
@@ -9,12 +9,14 @@ let handler = async (m, { conn, text }) => {
       comment: text,
       username: conn.getName(m.sender),
     }),
-    'error.png',
-    '*THANKS FOR COMMENT*',
+    'fehler.png', // Geänderter Dateiname
+    '*DANKE FÜR DEN KOMMENTAR*', // Übersetzte Nachricht
     m
   )
 }
-handler.help = ['ytcomment <comment>']
-handler.tags = ['maker']
-handler.command = /^(ytcomment)$/i
+
+// Befehlshilfe und Tags auf Deutsch
+handler.help = ['ytcomment </Kommentar>'] // Übersetzte Hilfetexte
+handler.tags = ['erstellen'] // Übersetztes Tag
+handler.command = /^(ytcomment)$/i // Befehl bleibt auf Englisch
 export default handler
